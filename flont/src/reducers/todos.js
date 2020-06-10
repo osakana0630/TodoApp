@@ -1,16 +1,26 @@
-import {READ_TODOS, CREATE_TODO, DELETE_TODO} from "../actions/TodoAction"
+import {
+    READ_TODOS,
+    CREATE_TODO,
+    DELETE_TODO,
+    TOGGLE_TODO
+} from "../actions/todoApi"
 import _ from "lodash"
 
-export const todos = (todo =  {}, action) => {
+export const todos = (todo = {}, action) => {
     switch (action.type) {
         case READ_TODOS :
-            return _.mapKeys(action.response.data, "id");
+
+            return _.mapKeys(action.response.data, function (value, id) {
+            value["completed"] = false;
+            return value.id;
+        });
+
 
         case CREATE_TODO :
-        //上のデータ型に合うように整形して、スプレッド演算子でマージする
+            //データ型に合うように整形して、スプレッド構文でマージする
             const data = action.response.data;
-            //todoごとに完了・未完了を区別するために、completedという要素を追加
-            data["completed"]  = false;
+            //読み込み時だけだと、リロードしないと反映されない。create時にもtodoにcompletedという要素を追加
+            data["completed"] = false;
             return {
                 ...todo,
                 [data.id]: data
@@ -20,7 +30,14 @@ export const todos = (todo =  {}, action) => {
             //idで該当のTodo削除する action.idで取れる
             delete todo[action.id];
             return {...todo};
+        case TOGGLE_TODO :
+            //現在のstate(todo)の中からアクションで受け取ったidと一致するものtodoを抽出し、completedの値を反転させてから、全てのstate(todo)を返す
+            todo[action.id].completed = !(todo[action.id].completed);
+            return {
+                ...todo
+            };
+
         default :
             return todo;
     }
-} ;
+};
