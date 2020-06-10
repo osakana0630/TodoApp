@@ -61,10 +61,7 @@ const getVisibleTodos = (todos, filter) => {
         case "SHOW_COMPLETED" :
             return _.pickBy(todos, 'completed');
         case "SHOW_ACTIVE" :
-            // const result = Object.entries(todos).filter(([k, v]) => v.completed === false);
-            // return Object.fromEntries(result);
             return _.pickBy(todos, t => !t.completed );
-
         default :
             return todos;
     }
